@@ -1,5 +1,6 @@
-import Home from './pages/Home.jsx';
+import React from 'react';
+import AppRouter from './routes/AppRouter.jsx';
 
 export default function App() {
-  return <Home />;
+  return <AppRouter />;
 }
