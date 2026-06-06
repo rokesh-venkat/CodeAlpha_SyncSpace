@@ -1,8 +1,9 @@
 {
-  "name": "codealpha-syncspace-server",
-  "private": true,
-  "version": "0.0.0",
+  "name": "syncspace-server",
+  "version": "1.0.0",
+  "description": "SyncSpace backend — Express + MongoDB + Socket.io + WebRTC",
   "type": "module",
+  "main": "server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js"
@@ -14,6 +15,7 @@
     "express": "^4.22.2",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.3",
+    "mongodb": "^7.2.0",
     "mongoose": "^9.6.3",
     "morgan": "^1.10.0",
     "socket.io": "^4.8.3"
