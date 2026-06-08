@@ -1,20 +1,24 @@
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { SocketProvider } from "./context/SocketContext.jsx";
 import { AppRouter } from "./routes/AppRouter.jsx";
 
 /**
  * App — root component.
  *
- * Provider order matters:
- * 1. ThemeProvider — sets the CSS class on <html>, no auth dependency
- * 2. AuthProvider — manages JWT + user state, wraps the whole router
- * 3. AppRouter    — can now read both theme and auth context anywhere
+ * Provider order:
+ * 1. ThemeProvider  — no dependencies
+ * 2. AuthProvider   — provides user + token
+ * 3. SocketProvider — reads token from AuthContext to connect socket
+ * 4. AppRouter      — all pages can now read theme, auth, and socket
  */
 export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <AppRouter />
+        <SocketProvider>
+          <AppRouter />
+        </SocketProvider>
       </AuthProvider>
     </ThemeProvider>
   );

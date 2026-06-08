@@ -3,18 +3,14 @@ import { Link } from "react-router-dom";
 import {
   Video, Link2, Clock, Users, Calendar,
   TrendingUp, Mic, ScreenShare, Plus, ArrowRight,
-  Play, Star
+  Play, Star,
 } from "lucide-react";
-import { Button } from "../components/common/Button";
-import { Card, StatCard } from "../components/common/Card";
-import { Modal } from "../components/common/Modal";
-
-const stats = [
-  { label: "Meetings this week", value: "12", delta: 8, icon: <Video size={20} />, color: "violet" },
-  { label: "Total participants", value: "84", delta: 12, icon: <Users size={20} />, color: "emerald" },
-  { label: "Hours connected", value: "6.4h", delta: -3, icon: <Clock size={20} />, color: "sky" },
-  { label: "Scheduled today", value: "3", icon: <Calendar size={20} />, color: "amber" },
-];
+import { useAuth } from "../context/AuthContext.jsx";
+import { useSocket } from "../hooks/useSocket.js";
+import { ConnectionStatus } from "../components/meeting/ConnectionStatus.jsx";
+import { Button } from "../components/common/Button.jsx";
+import { Card, StatCard } from "../components/common/Card.jsx";
+import { Modal } from "../components/common/Modal.jsx";
 
 const recentMeetings = [
   { id: "m1", title: "Design Review — Sprint 14", duration: "48m", participants: 6, time: "Today, 10:30 AM", status: "ended" },
@@ -29,34 +25,62 @@ const upcomingSlots = [
   { title: "Team Retrospective", time: "5:30 PM", tag: "Team" },
 ];
 
+// Generate a simple room ID
+const generateRoomId = () =>
+  Math.random().toString(36).slice(2, 6) +
+  "-" +
+  Math.random().toString(36).slice(2, 6);
+
 export default function Dashboard() {
+  const { user } = useAuth();
+  const { connected, onlineCount } = useSocket();
   const [joinModal, setJoinModal] = useState(false);
   const [joinCode, setJoinCode] = useState("");
+
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const greeting =
+    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
+  const stats = [
+    { label: "Meetings this week", value: "12", delta: 8, icon: <Video size={20} />, color: "violet" },
+    { label: "Users online now", value: String(onlineCount), icon: <Users size={20} />, color: "emerald" },
+    { label: "Hours connected", value: "6.4h", delta: -3, icon: <Clock size={20} />, color: "sky" },
+    { label: "Scheduled today", value: "3", icon: <Calendar size={20} />, color: "amber" },
+  ];
+
+  const newRoomId = generateRoomId();
 
   return (
     <div className="p-5 md:p-7 max-w-7xl mx-auto space-y-7">
 
       {/* Welcome banner */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-violet-700 to-fuchsia-800 p-6 md:p-8">
-        {/* Decorative orbs */}
         <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/5" />
         <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/5" />
-        <div className="absolute top-4 right-48 w-16 h-16 rounded-full bg-fuchsia-500/20" />
 
         <div className="relative flex flex-col md:flex-row md:items-center gap-5">
           <div className="flex-1">
-            <p className="text-violet-200 text-sm font-medium mb-1">{greeting} 👋</p>
+            <div className="flex items-center gap-3 mb-1">
+              <p className="text-violet-200 text-sm font-medium">{greeting} 👋</p>
+              {/* Live connection badge */}
+              <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                connected
+                  ? "bg-white/10 text-emerald-300"
+                  : "bg-white/10 text-white/50"
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${connected ? "bg-emerald-400 animate-pulse" : "bg-white/30"}`} />
+                {connected ? `${onlineCount} online` : "Connecting..."}
+              </div>
+            </div>
             <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-              Welcome back, Rokesh
+              Welcome back, {user?.name?.split(" ")[0] || "there"}
             </h1>
             <p className="text-violet-300 text-sm mt-1.5">
               You have 3 meetings scheduled for today. Ready to sync up?
             </p>
           </div>
           <div className="flex gap-3 shrink-0">
-            <Link to="/room/preview">
+            <Link to={`/room/${newRoomId}`}>
               <Button variant="secondary" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
                 <Video size={14} />
                 Start Meeting
@@ -74,27 +98,21 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Stats row */}
+      {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s) => (
           <StatCard key={s.label} {...s} />
         ))}
       </div>
 
-      {/* Main content grid */}
+      {/* Content grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
-        {/* Left: quick actions + recent meetings */}
         <div className="xl:col-span-2 space-y-6">
 
-          {/* Quick action cards */}
+          {/* Quick actions */}
           <div className="grid sm:grid-cols-2 gap-4">
-            {/* Create Meeting */}
-            <Link to="/room/preview">
-              <Card
-                hover
-                className="group border-violet-500/20 hover:border-violet-500/50 hover:bg-violet-500/5"
-              >
+            <Link to={`/room/${newRoomId}`}>
+              <Card hover className="group border-violet-500/20 hover:border-violet-500/50 hover:bg-violet-500/5">
                 <div className="flex items-start gap-4">
                   <div className="w-11 h-11 rounded-xl bg-violet-500/15 flex items-center justify-center text-violet-400 group-hover:scale-110 transition-transform">
                     <Video size={20} />
@@ -103,7 +121,7 @@ export default function Dashboard() {
                     <h3 className="font-semibold text-text-primary text-sm">Create Meeting</h3>
                     <p className="text-xs text-text-muted mt-0.5">Start an instant video call</p>
                   </div>
-                  <ArrowRight size={14} className="text-text-muted group-hover:text-violet-400 group-hover:translate-x-0.5 transition-all mt-0.5" />
+                  <ArrowRight size={14} className="text-text-muted group-hover:text-violet-400 transition-all mt-0.5" />
                 </div>
                 <div className="mt-4 flex gap-2">
                   {[<Mic size={12} />, <Video size={12} />, <ScreenShare size={12} />].map((icon, i) => (
@@ -115,12 +133,7 @@ export default function Dashboard() {
               </Card>
             </Link>
 
-            {/* Join Meeting */}
-            <Card
-              hover
-              onClick={() => setJoinModal(true)}
-              className="group border-emerald-500/20 hover:border-emerald-500/50 hover:bg-emerald-500/5"
-            >
+            <Card hover onClick={() => setJoinModal(true)} className="group border-emerald-500/20 hover:border-emerald-500/50 hover:bg-emerald-500/5">
               <div className="flex items-start gap-4">
                 <div className="w-11 h-11 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
                   <Link2 size={20} />
@@ -129,13 +142,7 @@ export default function Dashboard() {
                   <h3 className="font-semibold text-text-primary text-sm">Join Meeting</h3>
                   <p className="text-xs text-text-muted mt-0.5">Enter a room code or link</p>
                 </div>
-                <ArrowRight size={14} className="text-text-muted group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all mt-0.5" />
-              </div>
-              <div className="mt-4">
-                <div className="h-7 rounded-lg bg-surface-2 border border-border flex items-center px-2 gap-2">
-                  <Hash size={11} className="text-text-muted" />
-                  <span className="text-[11px] text-text-muted">abc-xyz-123</span>
-                </div>
+                <ArrowRight size={14} className="text-text-muted group-hover:text-emerald-400 transition-all mt-0.5" />
               </div>
             </Card>
           </div>
@@ -144,39 +151,27 @@ export default function Dashboard() {
           <Card>
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-text-primary text-sm">Recent Meetings</h2>
-              <Button variant="ghost" size="sm" className="text-violet-400 hover:text-violet-300 text-xs">
+              <Button variant="ghost" size="sm" className="text-violet-400 text-xs">
                 View all <ArrowRight size={12} />
               </Button>
             </div>
             <div className="divide-y divide-border">
               {recentMeetings.map((m) => (
-                <div key={m.id} className="py-3 first:pt-0 last:pb-0 flex items-center gap-3 group">
-                  <div className={`
-                    w-8 h-8 rounded-xl flex items-center justify-center shrink-0
-                    ${m.status === "upcoming" ? "bg-amber-500/15 text-amber-400" : "bg-surface-2 text-text-muted"}
-                  `}>
+                <div key={m.id} className="py-3 first:pt-0 last:pb-0 flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                    m.status === "upcoming" ? "bg-amber-500/15 text-amber-400" : "bg-surface-2 text-text-muted"
+                  }`}>
                     {m.status === "upcoming" ? <Calendar size={14} /> : <Play size={14} />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-text-primary truncate">{m.title}</p>
-                    <p className="text-[11px] text-text-muted mt-0.5 flex items-center gap-2">
-                      <span>{m.time}</span>
-                      {m.status === "ended" && (
-                        <>
-                          <span className="w-0.5 h-0.5 rounded-full bg-text-muted" />
-                          <span>{m.duration}</span>
-                          <span className="w-0.5 h-0.5 rounded-full bg-text-muted" />
-                          <Users size={9} /> {m.participants}
-                        </>
-                      )}
+                    <p className="text-[11px] text-text-muted mt-0.5">
+                      {m.time} {m.status === "ended" && `· ${m.duration} · ${m.participants} people`}
                     </p>
                   </div>
-                  <span className={`
-                    text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0
-                    ${m.status === "upcoming"
-                      ? "bg-amber-500/15 text-amber-400"
-                      : "bg-surface-2 text-text-muted"}
-                  `}>
+                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0 ${
+                    m.status === "upcoming" ? "bg-amber-500/15 text-amber-400" : "bg-surface-2 text-text-muted"
+                  }`}>
                     {m.status === "upcoming" ? "Upcoming" : "Ended"}
                   </span>
                 </div>
@@ -185,8 +180,23 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Right: today's schedule + activity */}
+        {/* Right column */}
         <div className="space-y-5">
+          {/* Connection status card */}
+          <Card>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-semibold text-text-primary text-sm">Real-time Status</h2>
+            </div>
+            <div className="space-y-3">
+              <ConnectionStatus />
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-surface-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-xs text-text-secondary">
+                  {onlineCount} {onlineCount === 1 ? "user" : "users"} online right now
+                </span>
+              </div>
+            </div>
+          </Card>
 
           {/* Today's schedule */}
           <Card>
@@ -196,7 +206,7 @@ export default function Dashboard() {
             </div>
             <div className="space-y-2">
               {upcomingSlots.map((slot, i) => (
-                <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-surface-2 transition-colors cursor-pointer group">
+                <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-surface-2 transition-colors cursor-pointer">
                   <div className="w-1 h-8 rounded-full bg-violet-500/60 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-text-primary truncate">{slot.title}</p>
@@ -213,13 +223,12 @@ export default function Dashboard() {
             </Button>
           </Card>
 
-          {/* Activity chart placeholder */}
+          {/* Weekly activity */}
           <Card>
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-text-primary text-sm">Weekly Activity</h2>
               <TrendingUp size={14} className="text-emerald-400" />
             </div>
-            {/* Bar chart placeholder */}
             <div className="flex items-end gap-1.5 h-20">
               {[40, 65, 45, 80, 55, 90, 70].map((h, i) => {
                 const days = ["M", "T", "W", "T", "F", "S", "S"];
@@ -227,7 +236,7 @@ export default function Dashboard() {
                 return (
                   <div key={i} className="flex-1 flex flex-col items-center gap-1">
                     <div
-                      className={`w-full rounded-t-md transition-all ${isToday ? "bg-violet-500" : "bg-surface-3 hover:bg-violet-500/40"}`}
+                      className={`w-full rounded-t-md ${isToday ? "bg-violet-500" : "bg-surface-3 hover:bg-violet-500/40"}`}
                       style={{ height: `${h}%` }}
                     />
                     <span className={`text-[9px] ${isToday ? "text-violet-400 font-bold" : "text-text-muted"}`}>
@@ -237,30 +246,6 @@ export default function Dashboard() {
                 );
               })}
             </div>
-            <p className="text-[11px] text-text-muted mt-3 text-center">
-              ↑ 12% more meetings than last week
-            </p>
-          </Card>
-
-          {/* Favorite rooms */}
-          <Card>
-            <div className="flex items-center gap-2 mb-3">
-              <Star size={13} className="text-amber-400" />
-              <h2 className="font-semibold text-text-primary text-sm">Favorite Rooms</h2>
-            </div>
-            {["Design Team", "Engineering", "Product Hub"].map((name, i) => (
-              <Link
-                key={i}
-                to={`/room/${name.toLowerCase().replace(" ", "-")}`}
-                className="flex items-center gap-2.5 py-2 hover:text-violet-400 transition-colors group"
-              >
-                <div className="w-6 h-6 rounded-lg bg-surface-2 flex items-center justify-center text-[10px] font-bold text-text-muted">
-                  {name[0]}
-                </div>
-                <span className="text-xs text-text-secondary group-hover:text-violet-400 flex-1">{name}</span>
-                <ArrowRight size={11} className="text-text-muted group-hover:text-violet-400 opacity-0 group-hover:opacity-100 transition-all" />
-              </Link>
-            ))}
           </Card>
         </div>
       </div>
@@ -273,52 +258,32 @@ export default function Dashboard() {
         footer={
           <>
             <Button variant="secondary" onClick={() => setJoinModal(false)}>Cancel</Button>
-            <Button onClick={() => setJoinModal(false)}>Join Now</Button>
+            <Button
+              onClick={() => {
+                if (joinCode.trim()) {
+                  setJoinModal(false);
+                  window.location.href = `/room/${joinCode.trim()}`;
+                }
+              }}
+            >
+              Join Now
+            </Button>
           </>
         }
       >
         <div className="space-y-4">
-          <p className="text-sm text-text-muted">Enter a meeting code or paste an invite link to join.</p>
-          <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1.5">
-              Meeting code or link
-            </label>
-            <input
-              type="text"
-              placeholder="abc-xyz-123 or https://syncspace.dev/room/..."
-              value={joinCode}
-              onChange={(e) => setJoinCode(e.target.value)}
-              className="
-                w-full px-3 py-2.5 rounded-xl text-sm
-                bg-surface-2 border border-border
-                text-text-primary placeholder:text-text-muted
-                focus:outline-none focus:border-violet-500/60
-                transition-colors
-              "
-              autoFocus
-            />
-          </div>
-          <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="accent-violet-500 rounded" defaultChecked />
-              <span className="text-xs text-text-muted">Turn on camera</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="accent-violet-500 rounded" defaultChecked />
-              <span className="text-xs text-text-muted">Turn on mic</span>
-            </label>
-          </div>
+          <p className="text-sm text-text-muted">Enter a meeting room code to join.</p>
+          <input
+            type="text"
+            placeholder="e.g. abc1-xyz2"
+            value={joinCode}
+            onChange={(e) => setJoinCode(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && joinCode.trim() && (window.location.href = `/room/${joinCode.trim()}`)}
+            className="w-full px-3 py-2.5 rounded-xl text-sm bg-surface-2 border border-border text-text-primary placeholder:text-text-muted focus:outline-none focus:border-violet-500/60 transition-colors"
+            autoFocus
+          />
         </div>
       </Modal>
     </div>
-  );
-}
-
-function Hash({ size, className }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <line x1="4" y1="9" x2="20" y2="9" /><line x1="4" y1="15" x2="20" y2="15" />
-      <line x1="10" y1="3" x2="8" y2="21" /><line x1="16" y1="3" x2="14" y2="21" />
-    </svg>
   );
 }
