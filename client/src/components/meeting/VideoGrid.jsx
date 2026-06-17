@@ -1,18 +1,16 @@
 import { VideoPlayer } from "./VideoPlayer.jsx";
 
-/**
- * VideoGrid — lays out all participant video tiles responsively.
- *
- * Layout rules:
- * 1 participant  → full width
- * 2 participants → 2 columns
- * 3-4            → 2x2 grid
- * 5-6            → 3x2 grid
- * 7+             → 3+ columns auto-fill
- */
-export function VideoGrid({ localStream, localUser, remoteStreams, audioEnabled, videoEnabled, isSharing }) {
-  const remoteEntries = Array.from(remoteStreams.entries()); // [socketId, { stream, user, audioEnabled, videoEnabled }]
-  const totalCount = 1 + remoteEntries.length;
+export function VideoGrid({
+  localStream,
+  remoteStreams,
+  participants,
+  currentUser,
+  connectionQualities = {},
+  sharing = false,
+  screenStream = null,
+}) {
+  const remoteStreamEntries = Object.entries(remoteStreams);
+  const totalCount = 1 + remoteStreamEntries.length;
 
   const gridClass =
     totalCount === 1 ? "grid-cols-1" :
@@ -23,25 +21,29 @@ export function VideoGrid({ localStream, localUser, remoteStreams, audioEnabled,
 
   return (
     <div className={`h-full grid ${gridClass} gap-2 p-2`}>
-      {/* Local tile */}
       <VideoPlayer
-        stream={localStream}
-        participant={localUser}
-        isSelf
-        audioEnabled={audioEnabled}
-        videoEnabled={videoEnabled && !isSharing}
+        stream={sharing ? screenStream : localStream}
+        name={currentUser?.name || "You"}
+        isSelf={true}
+        isHost={currentUser?.isHost}
+        isScreenShare={sharing}
       />
 
-      {/* Remote tiles */}
-      {remoteEntries.map(([socketId, { stream, user, audioEnabled: rAudio, videoEnabled: rVideo }]) => (
-        <VideoPlayer
-          key={socketId}
-          stream={stream}
-          participant={user}
-          audioEnabled={rAudio !== false}
-          videoEnabled={rVideo !== false}
-        />
-      ))}
+      {remoteStreamEntries.map(([socketId, stream]) => {
+        const participant = participants.find((p) => p.socketId === socketId) || {};
+        const quality = connectionQualities[socketId] || "good";
+
+        return (
+          <VideoPlayer
+            key={socketId}
+            stream={stream}
+            name={participant.name || "Unknown"}
+            isSelf={false}
+            isHost={participant.isHost}
+            quality={quality}
+          />
+        );
+      })}
     </div>
   );
 }

@@ -1,39 +1,75 @@
 import { useState, useEffect, useRef } from "react";
-import * as mediaService from "../services/mediaService.js";
+import { mediaService } from "../services/mediaService";
 
-/**
- * useMediaStream — acquires and manages local camera/mic stream.
- * Used in MeetingPreview page before joining.
- */
-export function useMediaStream({ video = true, audio = true } = {}) {
-  const [stream, setStream] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const streamRef = useRef(null);
+export const useMediaStream = () => {
+  const [localStream, setLocalStream] = useState(null);
+  const [screenStream, setScreenStream] = useState(null);
+  const [micOn, setMicOn] = useState(true);
+  const [camOn, setCamOn] = useState(true);
+  const localStreamRef = useRef(localStream);
 
   useEffect(() => {
-    let cancelled = false;
+    localStreamRef.current = localStream;
+  }, [localStream]);
 
-    const acquire = async () => {
-      try {
-        setLoading(true);
-        const s = await mediaService.getUserMedia(video, audio);
-        if (!cancelled) { streamRef.current = s; setStream(s); }
-      } catch (err) {
-        if (!cancelled) setError(err.message);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
+  const getLocalWebcamAndMicStream = async () => {
+    try {
+      const stream = await mediaService.getLocalStream(true, true);
+      setLocalStream(stream);
+      return stream;
+    } catch (error) {
+      console.error("Error getting local webcam and mic stream:", error);
+      return null;
+    }
+  };
 
-    acquire();
+  const getScreenShareStream = async () => {
+    try {
+      const stream = await mediaService.getScreenShareStream();
+      setScreenStream(stream);
+      return stream;
+    } catch (error) {
+      console.error("Error getting screen share stream:", error);
+      return null;
+    }
+  };
 
-    return () => {
-      cancelled = true;
-      // Stop preview stream on unmount — useWebRTC will re-acquire for the call
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-    };
-  }, []);
+  const stopLocalStream = () => {
+    mediaService.stopLocalStream();
+    setLocalStream(null);
+  };
 
-  return { stream, error, loading };
-}
+  const stopScreenShareStream = () => {
+    if (screenStream) {
+      mediaService.stopScreenShareStream();
+      setScreenStream(null);
+    }
+  };
+
+  const toggleMic = () => {
+    if (localStream) {
+      mediaService.toggleAudio(!micOn);
+      setMicOn((prev) => !prev);
+    }
+  };
+
+  const toggleCam = () => {
+    if (localStream) {
+      mediaService.toggleVideo(!camOn);
+      setCamOn((prev) => !prev);
+    }
+  };
+
+  return {
+    localStream,
+    screenStream,
+    micOn,
+    camOn,
+    getLocalWebcamAndMicStream,
+    getScreenShareStream,
+    stopLocalStream,
+    stopScreenShareStream,
+    toggleMic,
+    toggleCam,
+  };
+};

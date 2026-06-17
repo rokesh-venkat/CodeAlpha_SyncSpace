@@ -33,4 +33,14 @@ export const SOCKET_EVENTS = {
   CHAT_ERROR: "chat:error",
 
   SERVER_ERROR: "server:error",
+
+  WEBRTC_OFFER: "webrtc:offer",
+  WEBRTC_ANSWER: "webrtc:answer",
+  WEBRTC_ICE_CANDIDATE: "webrtc:ice-candidate",
+  WEBRTC_USER_JOINED: "webrtc:user-joined",
+  WEBRTC_USER_LEFT: "webrtc:user-left",
+  WEBRTC_TOGGLE_AUDIO: "webrtc:toggleAudio",
+  WEBRTC_TOGGLE_VIDEO: "webrtc:toggleVideo",
+  WEBRTC_SCREEN_SHARE: "webrtc:screenShare",
+  WEBRTC_SCREEN_STOP: "webrtc:screenStop",
 };
