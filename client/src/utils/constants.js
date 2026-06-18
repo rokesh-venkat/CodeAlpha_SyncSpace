@@ -2,10 +2,10 @@ export const APP_NAME = "SyncSpace";
 export const APP_VERSION = "1.0.0";
 
 export const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
+  import.meta.env.VITE_SOCKET_URL || "";
 
 export const API_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+  import.meta.env.VITE_API_URL || "/api";
 
 export const ROOM_ID_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
 export const ROOM_ID_LENGTH = 9; // xxx-xxx format

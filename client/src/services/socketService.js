@@ -10,7 +10,7 @@ import { SOCKET_EVENTS } from "../utils/socketEvents.js";
  */
 
 const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
+  import.meta.env.VITE_SOCKET_URL || "";
 
 let socket = null;
 
