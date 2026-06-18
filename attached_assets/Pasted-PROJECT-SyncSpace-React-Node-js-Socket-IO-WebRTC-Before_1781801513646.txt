@@ -1,0 +1,340 @@
+PROJECT: SyncSpace (React + Node.js + Socket.IO + WebRTC)
+
+Before generating code:
+
+1. Analyze the existing project structure and files that already exist.
+2. Do NOT regenerate working files.
+3. Do NOT rewrite completed features.
+4. Only implement missing, broken, or incomplete functionality.
+5. Preserve current architecture and coding style.
+6. Provide production-ready code.
+7. If a file is already mostly complete, only provide the necessary modifications.
+8. Focus on Phase 5 completion first, then Phase 6.
+
+---
+
+## CURRENT PROJECT STATUS
+
+Completed:
+
+✓ MongoDB Atlas connection working
+✓ JWT authentication working
+✓ User registration working
+✓ User login working
+✓ Protected routes working
+✓ Socket.IO initialization working
+✓ Presence system partially implemented
+✓ Room lifecycle foundation implemented
+✓ Chat persistence foundation implemented
+✓ WebRTC signaling foundation implemented
+✓ Dashboard UI foundation implemented
+✓ Meeting room UI shell implemented
+✓ Video grid implemented
+✓ Chat panel implemented
+✓ Participant list implemented
+✓ Context/provider architecture implemented
+
+---
+
+## CRITICAL BUGS TO FIX
+
+1. RoomHeader.jsx imports ConnectionStatus incorrectly or missing import causing runtime crash.
+
+2. socketEvents.js missing:
+
+* WEBRTC_MUTE
+* WEBRTC_UNMUTE
+* WEBRTC_CAM_ON
+* WEBRTC_CAM_OFF
+* WEBRTC_SCREEN_SHARE_START
+* WEBRTC_SCREEN_SHARE_STOP
+* MESSAGE_REACTION
+
+3. MeetingControls.jsx prop mismatch:
+
+Expected:
+audioEnabled
+videoEnabled
+onToggleAudio
+onToggleVideo
+onStartShare
+onStopShare
+
+Currently:
+micOn
+camOn
+onToggleMic
+onToggleCam
+onToggleShare
+
+Need unified API.
+
+4. signalingSocket.js depends on socket.roomId but roomId is never assigned.
+
+5. mediaService.js exports don't match useWebRTC.js imports.
+
+6. ChatMessage.jsx missing currentUserId support.
+
+---
+
+## EMPTY/STUB COMPONENTS
+
+Implement completely:
+
+client/src/components/whiteboard/
+
+* WhiteboardCanvas.jsx
+* Toolbar.jsx
+* DrawingTools.jsx
+* ColorPicker.jsx
+
+client/src/pages/
+
+* Profile.jsx
+* Settings.jsx
+
+client/src/components/meeting/
+
+* VideoCard.jsx
+* ScreenShare.jsx
+* AudioVisualizer.jsx
+* MeetingHeader.jsx
+
+client/src/components/dashboard/
+
+* CreateMeeting.jsx
+* JoinMeeting.jsx
+* MeetingCard.jsx
+* RecentMeetings.jsx
+
+client/src/components/common/
+
+* Input.jsx
+* TypingIndicator.jsx
+* Footer.jsx
+
+---
+
+## MISSING FEATURES
+
+A. WebRTC Service Layer
+
+Unify:
+
+client/src/services/webrtcService.js
+
+Must support:
+
+* createPeerConnection
+* createOffer
+* createAnswer
+* setRemoteAnswer
+* addIceCandidate
+* closePeerConnection
+* getConnectionQuality
+* replaceTrack
+* stopStream
+* getUserMedia
+* getAudioStream
+* getDisplayMedia
+* toggleAudio
+* toggleVideo
+
+Must match useWebRTC.js usage.
+
+---
+
+B. Screen Sharing
+
+Implement:
+
+* track replacement
+* screen start
+* screen stop
+* broadcast state via socket
+
+---
+
+C. Hand Raise
+
+Implement server and client handlers.
+
+---
+
+D. Recording
+
+Implement MediaRecorder-based local recording.
+
+Files:
+
+* MeetingControls.jsx
+* MeetingContext.jsx
+* mediaService.js
+
+Features:
+
+* Start recording
+* Stop recording
+* Download recording
+
+---
+
+E. Notification System
+
+Wire NotificationBell.jsx into layout.
+
+Add:
+
+* unread count
+* meeting notifications
+* chat notifications
+
+---
+
+F. File Sharing
+
+Implement:
+
+server:
+
+* chatController.js
+* Message.js
+
+client:
+
+* fileService.js
+* ChatInput.jsx
+* ChatPanel.jsx
+
+Features:
+
+* upload file
+* send file message
+* download file
+
+---
+
+G. Rate Limiting
+
+Implement:
+
+server/src/middleware/rateLimitMiddleware.js
+
+Protect:
+
+* login
+* register
+* chat spam
+
+---
+
+H. Dashboard Pages
+
+Replace placeholders:
+
+* Meetings
+* Schedule
+* People
+
+with working pages.
+
+---
+
+## PHASE 6 FEATURES
+
+After Phase 5 is complete:
+
+1. Meeting History
+2. Meeting Analytics
+3. User Presence Dashboard
+4. Room Management
+5. Search Rooms
+6. Meeting Scheduling
+7. Invite Links
+8. Push Notifications
+9. Responsive Mobile UI
+10. Deployment Readiness
+
+---
+
+## FILES TO UPDATE
+
+Server:
+
+server/src/sockets/events.js
+server/src/sockets/index.js
+server/src/sockets/presenceSocket.js
+server/src/sockets/roomSocket.js
+server/src/sockets/chatSocket.js
+server/src/sockets/signalingSocket.js
+
+server/src/controllers/chatController.js
+server/src/controllers/roomController.js
+
+server/src/models/Message.js
+server/src/models/Room.js
+
+server/src/routes/chatRoutes.js
+server/src/routes/roomRoutes.js
+
+server/src/middleware/socketAuth.js
+
+server/src/app.js
+server/src/server.js
+
+Client:
+
+client/src/services/mediaService.js
+client/src/services/webrtcService.js
+
+client/src/hooks/useWebRTC.js
+client/src/hooks/useMediaStream.js
+
+client/src/components/meeting/*
+client/src/components/chat/*
+client/src/components/common/*
+client/src/pages/*
+client/src/context/MeetingContext.jsx
+
+---
+
+## OUTPUT RULES
+
+Do NOT generate everything at once.
+
+Step 1:
+Analyze architecture and identify dependencies.
+
+Step 2:
+List files needing modification.
+
+Step 3:
+Generate code batch-by-batch.
+
+Priority order:
+
+Batch 1:
+Critical bug fixes.
+
+Batch 2:
+WebRTC service reconciliation.
+
+Batch 3:
+Screen sharing.
+
+Batch 4:
+Whiteboard.
+
+Batch 5:
+Recording.
+
+Batch 6:
+File sharing.
+
+Batch 7:
+Dashboard features.
+
+Batch 8:
+Phase 6 features.
+
+Only continue to the next batch after the current batch is complete.

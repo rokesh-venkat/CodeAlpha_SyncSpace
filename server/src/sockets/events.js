@@ -1,17 +1,18 @@
-/**
- * SOCKET_EVENTS — single source of truth for all socket event names.
- * Used by server sockets/ handlers and client socketService.js
- */
 export const SOCKET_EVENTS = {
   CONNECT: "connect",
   DISCONNECT: "disconnect",
   CONNECT_ERROR: "connect_error",
-  PRESENCE_UPDATE: "presence:update",
-  PRESENCE_ONLINE: "presence:online",
-  PRESENCE_OFFLINE: "presence:offline",
+
+  PRESENCE_ONLINE: "user:online",
+  PRESENCE_OFFLINE: "user:offline",
   PRESENCE_AWAY: "presence:away",
+  PRESENCE_UPDATE: "presence:update",
+  USER_ONLINE: "user:online",
+  USER_OFFLINE: "user:offline",
+  USER_LAST_SEEN: "user:lastSeen",
   USERS_ACTIVE: "users:active",
   USERS_ACTIVE_COUNT: "users:activeCount",
+
   ROOM_CREATE: "room:create",
   ROOM_JOIN: "room:join",
   ROOM_LEAVE: "room:leave",
@@ -22,20 +23,31 @@ export const SOCKET_EVENTS = {
   ROOM_USER_JOINED: "room:userJoined",
   ROOM_USER_LEFT: "room:userLeft",
   ROOM_PARTICIPANTS: "room:participants",
+
   CHAT_SEND: "chat:send",
   CHAT_RECEIVE: "chat:receive",
   CHAT_TYPING: "chat:typing",
   CHAT_STOP_TYPING: "chat:stopTyping",
   CHAT_HISTORY: "chat:history",
   CHAT_ERROR: "chat:error",
+
   MESSAGE_REACT: "message:react",
+  MESSAGE_REACTION: "message:react",
   MESSAGE_REACTION_UPDATE: "message:reactionUpdate",
+
   NOTIFICATION_NEW: "notification:new",
+
   WEBRTC_OFFER: "webrtc:offer",
   WEBRTC_ANSWER: "webrtc:answer",
   WEBRTC_ICE_CANDIDATE: "webrtc:ice-candidate",
   WEBRTC_USER_JOINED: "webrtc:user-joined",
   WEBRTC_USER_LEFT: "webrtc:user-left",
+  WEBRTC_MUTE: "webrtc:mute",
+  WEBRTC_UNMUTE: "webrtc:unmute",
+  WEBRTC_CAM_ON: "webrtc:camOn",
+  WEBRTC_CAM_OFF: "webrtc:camOff",
+  WEBRTC_SCREEN_SHARE_START: "webrtc:screenShareStart",
+  WEBRTC_SCREEN_SHARE_STOP: "webrtc:screenShareStop",
   WEBRTC_TOGGLE_AUDIO: "webrtc:toggleAudio",
   WEBRTC_TOGGLE_VIDEO: "webrtc:toggleVideo",
   WEBRTC_SCREEN_SHARE: "webrtc:screenShare",

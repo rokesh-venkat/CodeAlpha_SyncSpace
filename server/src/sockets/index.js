@@ -6,14 +6,10 @@ import { chatSocket } from "./chatSocket.js";
 import { signalingSocket } from "./signalingSocket.js";
 import { SOCKET_EVENTS } from "./events.js";
 
-/**
- * initSocket — attaches Socket.IO to the HTTP server.
- * All handlers share activeUsers and rooms Maps.
- */
 const initSocket = (httpServer) => {
   const io = new Server(httpServer, {
     cors: {
-      origin: process.env.CLIENT_URL || "http://localhost:5173",
+      origin: true,
       methods: ["GET", "POST"],
       credentials: true,
     },
@@ -21,9 +17,8 @@ const initSocket = (httpServer) => {
     pingInterval: 25000,
   });
 
-  // Shared in-memory state
-  const activeUsers = new Map(); // userId → presence object
-  const rooms = new Map();       // roomId → Map<userId, participant>
+  const activeUsers = new Map();
+  const rooms = new Map();
 
   io.use(socketAuth);
 

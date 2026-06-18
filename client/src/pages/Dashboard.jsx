@@ -5,7 +5,7 @@ import {
   TrendingUp, Mic, ScreenShare, Plus, ArrowRight,
   Play, Star,
 } from "lucide-react";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useAuth } from "../hooks/useAuth.js";
 import { useSocket } from "../hooks/useSocket.js";
 import { ConnectionStatus } from "../components/meeting/ConnectionStatus.jsx";
 import { Button } from "../components/common/Button.jsx";

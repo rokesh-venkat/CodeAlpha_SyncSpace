@@ -1,60 +1,57 @@
-class MediaService {
-  constructor() {
-    this.localStream = null;
-    this.screenStream = null;
-  }
-
-  async getLocalStream(audio = true, video = true) {
-    try {
-      this.localStream = await navigator.mediaDevices.getUserMedia({
-        audio: audio,
-        video: video,
-      });
-      return this.localStream;
-    } catch (error) {
-      console.error("Error getting user media:", error);
-      throw error;
-    }
-  }
-
-  async getScreenShareStream() {
-    try {
-      this.screenStream = await navigator.mediaDevices.getDisplayMedia({
-        video: true,
-        audio: true,
-      });
-      return this.screenStream;
-    } catch (error) {
-      console.error("Error getting screen share stream:", error);
-      throw error;
-    }
-  }
-
-  stopLocalStream() {
-    if (this.localStream) {
-      this.localStream.getTracks().forEach((track) => track.stop());
-      this.localStream = null;
-    }
-  }
-
-  stopScreenShareStream() {
-    if (this.screenStream) {
-      this.screenStream.getTracks().forEach((track) => track.stop());
-      this.screenStream = null;
-    }
-  }
-
-  toggleAudio(enabled) {
-    if (this.localStream) {
-      this.localStream.getAudioTracks().forEach((track) => (track.enabled = enabled));
-    }
-  }
-
-  toggleVideo(enabled) {
-    if (this.localStream) {
-      this.localStream.getVideoTracks().forEach((track) => (track.enabled = enabled));
-    }
+export async function getUserMedia(audio = true, video = true) {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio, video });
+    return { stream, error: null };
+  } catch (err) {
+    const msg =
+      err.name === "NotAllowedError" ? "Camera/microphone permission denied." :
+      err.name === "NotFoundError"   ? "No camera or microphone found." :
+      err.name === "NotReadableError"? "Camera or microphone is in use by another app." :
+      "Could not access camera/microphone.";
+    return { stream: null, error: msg };
   }
 }
 
-export const mediaService = new MediaService();
+export async function getAudioStream() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    return { stream, error: null };
+  } catch (err) {
+    return { stream: null, error: err.message };
+  }
+}
+
+export async function getDisplayMedia() {
+  try {
+    const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+    return { stream, error: null };
+  } catch (err) {
+    if (err.name === "NotAllowedError") return { stream: null, error: "Screen share was cancelled." };
+    return { stream: null, error: err.message };
+  }
+}
+
+export function stopStream(stream) {
+  if (!stream) return;
+  stream.getTracks().forEach((track) => track.stop());
+}
+
+export function toggleAudio(stream, enabled) {
+  if (!stream) return;
+  stream.getAudioTracks().forEach((track) => { track.enabled = enabled; });
+}
+
+export function toggleVideo(stream, enabled) {
+  if (!stream) return;
+  stream.getVideoTracks().forEach((track) => { track.enabled = enabled; });
+}
+
+export async function replaceTrack(peers, newTrack, kind) {
+  const promises = Object.values(peers).map(async (pc) => {
+    const sender = pc.getSenders().find((s) => s.track?.kind === kind);
+    if (sender) {
+      await sender.replaceTrack(newTrack);
+    }
+  });
+  await Promise.all(promises);
+}

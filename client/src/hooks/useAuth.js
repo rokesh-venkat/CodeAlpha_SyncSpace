@@ -1,8 +1,8 @@
-/**
- * useAuth hook — re-exported from AuthContext for a cleaner import path.
- *
- * Usage in any component:
- *   import { useAuth } from "../hooks/useAuth";
- *   const { user, login, logout, isAuthenticated } = useAuth();
- */
-export { useAuth } from "../context/AuthContext.jsx";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext.jsx";
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
+  return ctx;
+}

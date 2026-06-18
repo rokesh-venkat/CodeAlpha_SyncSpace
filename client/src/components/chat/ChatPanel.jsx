@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { X, Loader } from "lucide-react";
 import { useSocket } from "../../hooks/useSocket.js";
-import { useAuth } from "../../context/AuthContext.jsx";
+import { useAuth } from "../../hooks/useAuth.js";
 import { SOCKET_EVENTS } from "../../utils/socketEvents.js";
 import { ChatMessage } from "./ChatMessage.jsx";
 import { ChatInput } from "./ChatInput.jsx";

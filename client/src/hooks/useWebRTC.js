@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSocket } from "./useSocket.js";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useAuth } from "./useAuth.js";
 import { SOCKET_EVENTS } from "../utils/socketEvents.js";
 import * as mediaService from "../services/mediaService.js";
 import * as webrtcService from "../services/webrtcService.js";

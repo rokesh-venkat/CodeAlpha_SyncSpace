@@ -1,0 +1,4 @@
+- [Vite Fast Refresh hook/component split](vite-fast-refresh.md) — context files must export ONLY components; hooks must live in separate files or Vite recreates the context on HMR, breaking providers.
+- [WebRTC & Media service API shape](webrtc-service-api.md) — services are now pure named-function exports (not class instances); API shape must match useWebRTC.js callers exactly.
+- [Socket event names must be synced](socket-event-sync.md) — client socketEvents.js and server events.js must use identical string values; server presence events alias to user:online/offline to match client listeners.
+- [Socket CORS must allow all origins in dev](socket-cors.md) — Replit proxies socket through a different origin; server/sockets/index.js sets `origin: true` in dev.

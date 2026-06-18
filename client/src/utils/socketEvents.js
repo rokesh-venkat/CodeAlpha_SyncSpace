@@ -1,9 +1,3 @@
-/**
- * SOCKET_EVENTS — client-side mirror of server/src/socket/events.js
- *
- * Keep this in sync with the server events file.
- * Both files must have identical values.
- */
 export const SOCKET_EVENTS = {
   CONNECT: "connect",
   DISCONNECT: "disconnect",
@@ -32,15 +26,21 @@ export const SOCKET_EVENTS = {
   CHAT_STOP_TYPING: "chat:stopTyping",
   CHAT_ERROR: "chat:error",
 
+  MESSAGE_REACTION: "message:react",
+  MESSAGE_REACTION_UPDATE: "message:reactionUpdate",
+
   SERVER_ERROR: "server:error",
+  NOTIFICATION_NEW: "notification:new",
 
   WEBRTC_OFFER: "webrtc:offer",
   WEBRTC_ANSWER: "webrtc:answer",
   WEBRTC_ICE_CANDIDATE: "webrtc:ice-candidate",
   WEBRTC_USER_JOINED: "webrtc:user-joined",
   WEBRTC_USER_LEFT: "webrtc:user-left",
-  WEBRTC_TOGGLE_AUDIO: "webrtc:toggleAudio",
-  WEBRTC_TOGGLE_VIDEO: "webrtc:toggleVideo",
-  WEBRTC_SCREEN_SHARE: "webrtc:screenShare",
-  WEBRTC_SCREEN_STOP: "webrtc:screenStop",
+  WEBRTC_MUTE: "webrtc:mute",
+  WEBRTC_UNMUTE: "webrtc:unmute",
+  WEBRTC_CAM_ON: "webrtc:camOn",
+  WEBRTC_CAM_OFF: "webrtc:camOff",
+  WEBRTC_SCREEN_SHARE_START: "webrtc:screenShareStart",
+  WEBRTC_SCREEN_SHARE_STOP: "webrtc:screenShareStop",
 };

@@ -1,35 +1,28 @@
 import { Link } from "react-router-dom";
 import { ChevronLeft, Copy, Users, Wifi } from "lucide-react";
 import { useState } from "react";
+import { ConnectionStatus } from "./ConnectionStatus.jsx";
 
-/**
- * RoomHeader — top bar inside the meeting room.
- * Shows room ID, participant count, connection status, and copy-link button.
- */
 export function RoomHeader({ roomId, participantCount = 0, recording = false }) {
   const [copied, setCopied] = useState(false);
 
   const copyRoomId = () => {
-    navigator.clipboard.writeText(roomId);
+    navigator.clipboard.writeText(window.location.href);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <div className="h-12 flex items-center justify-between px-4 shrink-0 border-b border-white/5">
-      {/* Left */}
       <div className="flex items-center gap-3">
-        <Link
-          to="/"
-          className="text-white/60 hover:text-white transition-colors"
-        >
+        <Link to="/" className="text-white/60 hover:text-white transition-colors">
           <ChevronLeft size={18} />
         </Link>
         <div>
           <span className="text-sm font-semibold text-white">SyncSpace Meeting</span>
           <button
             onClick={copyRoomId}
-            className="ml-2 text-xs text-white/40 hover:text-white/70 font-mono transition-colors flex items-center gap-1"
+            className="ml-2 text-xs text-white/40 hover:text-white/70 font-mono transition-colors inline-flex items-center gap-1"
           >
             {roomId}
             <Copy size={10} />
@@ -44,7 +37,6 @@ export function RoomHeader({ roomId, participantCount = 0, recording = false }) 
         )}
       </div>
 
-      {/* Right */}
       <div className="flex items-center gap-3">
         <ConnectionStatus compact />
         <div className="flex items-center gap-1.5 text-white/50 text-xs">
