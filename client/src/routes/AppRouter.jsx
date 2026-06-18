@@ -24,11 +24,16 @@ export function AppRouter() {
         <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
         <Route path="/register" element={<PublicOnlyRoute><Register /></PublicOnlyRoute>} />
 
+        {/* Protected, no sidebar layout */}
         <Route element={<ProtectedRoute />}>
+          {/* Preview lobby — enter roomId in URL */}
+          <Route path="/room/preview/:roomId" element={<MeetingPreview />} />
+          {/* Legacy preview route without roomId */}
           <Route path="/room/preview" element={<MeetingPreview />} />
           <Route path="/room/:roomId" element={<MeetingRoom />} />
         </Route>
 
+        {/* Protected, sidebar layout */}
         <Route element={<ProtectedRoute />}>
           <Route element={<ProtectedLayout />}>
             <Route index element={<Dashboard />} />
